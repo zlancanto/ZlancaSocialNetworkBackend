@@ -1,9 +1,30 @@
-import mongoose from "mongoose"
+import mongoose, {Model, Types} from "mongoose"
 import {isEmail} from "validator"
 import {REGEX_PASSWORD} from "../variables/regex";
 import {SPECIAL_CHARS} from "../variables/char";
 import bcrypt from "bcrypt"
 
+/* Interface */
+export interface IUser extends Document {
+    _id: Types.ObjectId
+    pseudo: string
+    email: string
+    password: string
+    picture?: string
+    bio?: string
+    followers: Array<string>
+    following: Array<string>
+    likes: Array<string>
+    createdAt: Date
+    updatedAt: Date
+}
+
+/* Typage du model pour les meth static de userSchema */
+export interface IUserModel extends Model<IUser> {
+    login(email: string, password: string): Promise<IUser>
+}
+
+/* Schema */
 const userSchema = new mongoose.Schema(
     {
         pseudo: {
@@ -66,4 +87,19 @@ userSchema.pre("save", async function (next) {
     next()
 })
 
-export const UserModel = mongoose.model("User", userSchema)
+/* Login */
+userSchema.statics.login = async function (email: string, password: string): Promise<IUser> {
+    const user: IUser = await this.findOne({ email })
+    if (!user) {
+        throw new Error('Incorrect email')
+    }
+
+    const isMatch: boolean = await bcrypt.compare(password, user.password)
+    if (!isMatch) {
+        throw new Error('Incorrect password')
+    }
+
+    return user
+}
+
+export const UserModel: IUserModel = mongoose.model<IUser, IUserModel>("User", userSchema)

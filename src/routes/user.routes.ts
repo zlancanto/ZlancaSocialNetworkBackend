@@ -7,7 +7,7 @@ const userRoutes: Router = Router()
 /* Auth */
 userRoutes.post('/register', authController.signUp)
 userRoutes.post('/login', authController.signIn)
-userRoutes.post('/logout', authController.logout)
+userRoutes.get('/logout', authController.logout)
 
 /* User DB */
 userRoutes.get('/', userController.getAllUsers)

@@ -8,7 +8,7 @@ export const getAllUsers = async (_: Request, res: Response) => {
         res.status(200).json(allUsers)
     }
     catch(err) {
-        res.json({err})
+        res.status(500).json({ message: "Internal server error", error: err })
     }
 }
 
@@ -19,10 +19,11 @@ export const getUserById = async (req: Request, res: Response) => {
         const user = await UserModel
             .findById(req.params.id)
             .select("-password")
+
         res.status(200).json(user)
     }
     catch(err) {
-        res.json({err})
+        res.status(500).json({ message: "Internal server error", error: err })
     }
 }
 
@@ -39,10 +40,11 @@ export const updateUserById = async (req: Request, res: Response) => {
                 setDefaultsOnInsert: true
             }
         )
+
         res.status(200).json(user)
     }
     catch(err) {
-        res.json({err})
+        res.status(500).json({ message: "Internal server error", error: err })
     }
 }
 
@@ -51,10 +53,11 @@ export const deleteUserById = async (req: Request, res: Response) => {
 
     try{
         const user   = await UserModel.findByIdAndDelete(req.params.id)
+
         res.status(200).json(user)
     }
     catch(err) {
-        res.json({err})
+        res.status(500).json({ message: "Internal server error", error: err })
     }
 }
 
@@ -84,7 +87,7 @@ export const followUser = async (req: Request, res: Response) => {
         res.status(200).json({userQuiFollow})
     }
     catch(err) {
-        res.json({err})
+        res.status(500).json({ message: "Internal server error", error: err })
     }
 }
 
@@ -114,7 +117,7 @@ export const unfollowUser = async (req: Request, res: Response) => {
         res.status(200).json({userQuiUnfollow})
     }
     catch(err) {
-        res.json({err})
+        res.status(500).json({ message: "Internal server error", error: err })
     }
 }
 
