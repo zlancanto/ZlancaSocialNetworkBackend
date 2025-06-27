@@ -71,6 +71,7 @@ const userSchema = new mongoose.Schema(
         following: {
             type: [String],
         },
+        /* Les id des posts auxquels le user a liké */
         likes: {
             type: [String],
         }

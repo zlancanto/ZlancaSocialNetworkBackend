@@ -5,6 +5,7 @@ import path from "node:path";
 import userRoutes from "./routes/user.routes";
 import cookieParser from "cookie-parser";
 import {checkUser, requireAuth} from "./middleware/auth.middleware";
+import postRoutes from "./routes/post.routes";
 
 /* Port */
 const port = process.env.PORT || 9000
@@ -33,6 +34,7 @@ app.get('/jwtId', requireAuth, (_: Request, res: Response) => {
 
 /* Routes */
 app.use('/api/user', userRoutes)
+app.use('/api/post', postRoutes)
 
 /* Port écouté par le serveur */
 app.listen(port, () => console.log(`Listening on port ${port}`))
