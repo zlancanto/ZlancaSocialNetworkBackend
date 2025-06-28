@@ -1,6 +1,6 @@
 import {Types} from "mongoose";
 import jwt from "jsonwebtoken";
-import {MAX_AGE} from "../variables/auth";
+import {MAX_AGE} from "../variables/auth.variable";
 
 export const createToken = (userId: Types.ObjectId): string => {
 

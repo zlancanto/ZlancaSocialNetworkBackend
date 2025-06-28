@@ -1,8 +1,13 @@
 import {Router} from "express";
 import * as authController from "../controllers/auth.controller"
 import * as userController from "../controllers/user.controller"
+import * as uploadController from "../controllers/upload.controller"
+import multer, {Multer, StorageEngine} from "multer";
 
 const userRoutes: Router = Router()
+
+const storage: StorageEngine = multer.memoryStorage()
+const upload: Multer = multer({storage})
 
 /* Auth */
 userRoutes.post('/register', authController.signUp)
@@ -21,5 +26,8 @@ userRoutes.delete('/:id', userController.deleteUserById)
  */
 userRoutes.patch('/follow/:id', userController.followUser)
 userRoutes.patch('/unfollow/:id', userController.unfollowUser)
+
+/* Upload */
+userRoutes.post('/upload', upload.single('file'), uploadController.uploadProfil)
 
 export default userRoutes

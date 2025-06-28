@@ -1,7 +1,7 @@
 import {Request, Response} from 'express'
 import {IUser, UserModel} from "../models/user.model";
 import {createToken} from "../utils/auth.utils";
-import {MAX_AGE} from "../variables/auth";
+import {MAX_AGE} from "../variables/auth.variable";
 import {signInErrors, signUpErrors} from "../utils/errors.utils";
 
 /* Register */

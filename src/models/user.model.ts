@@ -1,7 +1,7 @@
 import mongoose, {Model, Types} from "mongoose"
 import {isEmail} from "validator"
-import {REGEX_PASSWORD} from "../variables/regex";
-import {SPECIAL_CHARS} from "../variables/char";
+import {REGEX_PASSWORD} from "../variables/regex.variable";
+import {SPECIAL_CHARS} from "../variables/char.variable";
 import bcrypt from "bcrypt"
 
 /* Interface */

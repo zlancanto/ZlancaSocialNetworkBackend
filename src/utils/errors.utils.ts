@@ -1,4 +1,4 @@
-import {SPECIAL_CHARS} from "../variables/char";
+import {SPECIAL_CHARS} from "../variables/char.variable";
 
 export const signUpErrors = (err: any) => {
     const errors = {
@@ -48,6 +48,33 @@ export const signInErrors = (err: any) => {
     }
     if (err.message.toLowerCase().includes('password')) {
         errors.email = 'Password incorrect'
+    }
+
+    return errors
+}
+
+export const uploadErrors = (err: any) => {
+    const errors = {
+        notFile: '',
+        invalidFile: '',
+        maxSizeFile: '',
+        user: '',
+    }
+
+    if (err.message.toLowerCase().includes('aucun fichier fourni')) {
+        errors.notFile = err.message
+    }
+    if (err.message.toLowerCase().includes('invalid file type')) {
+        errors.invalidFile = err.message
+    }
+    if (err.message.toLowerCase().includes('size')) {
+        errors.maxSizeFile = err.message
+    }
+    if (err.message.toLowerCase().includes('user does not exist')) {
+        errors.user = err.message
+    }
+    if (err.message.toLowerCase().includes('taille max acceptée')) {
+        errors.user = err.message
     }
 
     return errors

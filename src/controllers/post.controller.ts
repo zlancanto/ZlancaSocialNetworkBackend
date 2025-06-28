@@ -5,6 +5,10 @@ import {UserModel} from "../models/user.model";
 import {MongooseError} from "mongoose";
 import {throws} from "node:assert";
 import {IComment} from "../utils/interface.utils";
+import {FILE_MAX_SIZE} from "../variables/file.variable";
+import path from "node:path";
+import {mkdir, writeFile} from "node:fs/promises";
+import {uploadErrors} from "../utils/errors.utils";
 
 /* Get All */
 export const getAllPost = async (_: Request, res: Response) => {
@@ -20,20 +24,63 @@ export const getAllPost = async (_: Request, res: Response) => {
 
 /* Create */
 export const createPost = async (req: Request, res: Response) => {
+    if (entityIdFormatIsInValid(req, res)) {
+        return
+    }
+
     const {posterId, message, video} = req.body
+    const allowedMimeTypes = ['image/png', 'image/jpg', 'image/jpeg']
 
     try {
+        let imgRelativePath: string|undefined
+        if (req.file && req.file.buffer) {
+
+            // Fichier invalid
+            if (!allowedMimeTypes.includes(req.file.mimetype)) {
+                throw new Error('Invalid file type')
+            }
+
+            // Max size
+            if ((req.file.size) > FILE_MAX_SIZE) {
+                throw new Error('Taille max acceptée : 5Mo')
+            }
+
+            // Poster user
+            let posterUser = await UserModel.findById(posterId).select('-password')
+            if (!posterUser) {
+                throw new Error('Poster user does not exist')
+            }
+
+            /* Image uploaded */
+
+            // Nom du fichier
+            const imgName: string = `${posterUser.pseudo}_${Date.now()}.jpg`
+            // Chemin du dossier spécifique à l'utilisateur
+            const userPostDir: string = path.join('uploads/post', posterUser.pseudo)
+            // On crée le dossier (et ses parents) s'il n'existe pas
+            await mkdir(userPostDir, { recursive: true })
+            // Chemin complet de l'image dans ce dossier
+            const imgPath = path.join(__dirname, `../client/public/${userPostDir}`, imgName)
+            // Ecriture de l'img
+            await writeFile(imgPath, req.file.buffer)
+            // Chemin à stoker dans la bd
+            imgRelativePath = path.join(`./${userPostDir}`, imgName)
+        }
+
         const newPost = await PostModel.create({
             posterId,
             message,
+            picture: imgRelativePath,
             video,
             likers: [],
             comments: [],
         })
         res.status(201).json(newPost)
-    } catch (error) {
-        console.error('error : ', error)
-        res.status(500).json({error})
+    } catch (error: any) {
+        const errors = uploadErrors(error)
+        console.error('Erreur : ', error)
+        console.error('Errors : ', errors)
+        res.status(500).json({ errors })
     }
 }
 

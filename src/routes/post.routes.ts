@@ -1,11 +1,15 @@
 import {Router} from "express";
 import * as postController from "../controllers/post.controller";
+import multer, {Multer, StorageEngine} from "multer";
 
 const postRoutes: Router = Router()
 
+const storage: StorageEngine = multer.memoryStorage()
+const upload: Multer = multer({storage})
+
 /* Classic */
 postRoutes.get('/', postController.getAllPost)
-postRoutes.post('/', postController.createPost)
+postRoutes.post('/', upload.single('file'), postController.createPost)
 postRoutes.put('/:id', postController.updatePost)
 postRoutes.delete('/:id', postController.deletePost)
 
