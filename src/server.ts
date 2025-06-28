@@ -6,6 +6,8 @@ import userRoutes from "./routes/user.routes";
 import cookieParser from "cookie-parser";
 import {checkUser, requireAuth} from "./middleware/auth.middleware";
 import postRoutes from "./routes/post.routes";
+import cors from "cors"
+import {CORS_OPTIONS} from "./variables/cors.variable";
 
 /* Port */
 const port = process.env.PORT || 9000
@@ -17,6 +19,9 @@ config()
 connectDB()
 
 const app: Express = express()
+
+/* Autorise l'API aux utilisations externes */
+app.use(cors(CORS_OPTIONS))
 
 /* Sert les fichiers statiques dans /public */
 app.use('/public', express.static(path.join(__dirname, '..', 'public')))
