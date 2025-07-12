@@ -5,7 +5,7 @@ import {FILE_MAX_SIZE} from "../variables/file.variable";
 import {entityIdFormatIsInValid} from "../utils/entity.exist.utils";
 import {API_IMAGE_KIT_FOLDER_PROFIL, API_IMAGE_KIT_URL_ENDPOINT, IMAGE_KIT} from "../variables/api";
 
-export const uploadProfil = async (req: Request, res: Response) => {
+export const    uploadProfil = async (req: Request, res: Response) => {
     const allowedMimeTypes = ['image/png', 'image/jpg', 'image/jpeg']
 
     if (entityIdFormatIsInValid(req, res)) {

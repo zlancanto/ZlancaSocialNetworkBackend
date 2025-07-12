@@ -76,7 +76,7 @@ export const followUser = async (req: Request, res: Response) => {
             },
             {new: true}
         )
-        res.status(200).json({userQuiFollow})
+        res.status(200).json(userQuiFollow)
     } catch (err) {
         res.status(500).json({message: "Internal server error", error: err})
     }
@@ -105,7 +105,7 @@ export const unfollowUser = async (req: Request, res: Response) => {
             },
             {new: true}
         )
-        res.status(200).json({userQuiUnfollow})
+        res.status(200).json(userQuiUnfollow)
     } catch (err) {
         res.status(500).json({message: "Internal server error", error: err})
     }
