@@ -4,7 +4,7 @@ export const signUpErrors = (err: any) => {
     const errors = {
         pseudo: '',
         email: '',
-        password: '',
+        password: {},
     }
 
     console.error('err', err)
@@ -17,11 +17,20 @@ export const signUpErrors = (err: any) => {
         errors.email = 'Email incorrect'
     }
     if (err.message.toLowerCase().includes('password')) {
-        errors.password = `Le password incorrect : 
+        /*
+        errors.password = `Le password incorrect :
         - 12 caractères minimum
         - Au moins une lettre majuscule
         - Au moins une lettre minuscule
         - Au moins un caractère spécial (${SPECIAL_CHARS})`
+        */
+        errors.password = {
+            libelle: 'Le mot de passe doit contenir :',
+            minChar: '12 caractères minimum',
+            majLetter: 'Au moins une lettre majuscule',
+            minLetter: 'Au moins une lettre minuscule',
+            specialChar: `Au moins un caractère spécial (${SPECIAL_CHARS})`
+        };
     }
 
     // Doublons

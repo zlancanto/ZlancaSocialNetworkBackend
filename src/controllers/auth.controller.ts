@@ -13,8 +13,8 @@ export const signUp = async (req: Request, res: Response) => {
         res.status(201).json({userId: user._id})
     }
     catch (err: any) {
-        //const errors = signUpErrors(err)
-        res.status(400).json({err})
+        const errors = signUpErrors(err)
+        res.status(400).json({errors})
     }
 }
 

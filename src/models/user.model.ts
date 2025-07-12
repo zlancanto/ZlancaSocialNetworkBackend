@@ -3,6 +3,7 @@ import {isEmail} from "validator"
 import {REGEX_PASSWORD} from "../variables/regex.variable";
 import {SPECIAL_CHARS} from "../variables/char.variable";
 import bcrypt from "bcrypt"
+import {API_IMAGE_KIT_FOLDER_PROFIL} from "../variables/api";
 
 /* Interface */
 export interface IUser extends Document {
@@ -59,7 +60,9 @@ const userSchema = new mongoose.Schema(
         },
         picture: {
             type: String,
-            default: '/public/randomUser.jpg'
+            default: function (this: IUser) {
+                return `${API_IMAGE_KIT_FOLDER_PROFIL}/${this.pseudo}.jpg`;
+            }
         },
         bio: {
             type: String,

@@ -1,6 +1,10 @@
 import express, {Express, Request, Response} from 'express'
 import {connectDB} from "./config/db";
+
 import {config} from "dotenv";
+/* Chargement de dotenv */
+config()
+
 import path from "node:path";
 import userRoutes from "./routes/user.routes";
 import cookieParser from "cookie-parser";
@@ -8,12 +12,6 @@ import {checkUser, requireAuth} from "./middleware/auth.middleware";
 import postRoutes from "./routes/post.routes";
 import cors from "cors"
 import {CORS_OPTIONS} from "./variables/cors.variable";
-
-/* Port */
-const port = process.env.PORT || 9000
-
-/* Chargement de dotenv */
-config()
 
 /* Connexion à la DB */
 connectDB()
@@ -42,4 +40,5 @@ app.use('/api/user', userRoutes)
 app.use('/api/post', postRoutes)
 
 /* Port écouté par le serveur */
+const port = process.env.PORT || 9000
 app.listen(port, () => console.log(`Listening on port ${port}`))
