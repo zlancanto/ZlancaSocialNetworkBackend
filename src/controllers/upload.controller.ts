@@ -5,7 +5,7 @@ import {FILE_MAX_SIZE} from "../variables/file.variable";
 import {entityIdFormatIsInValid} from "../utils/entity.exist.utils";
 import {API_IMAGE_KIT_FOLDER_PROFIL, API_IMAGE_KIT_URL_ENDPOINT, IMAGE_KIT} from "../variables/api";
 
-export const    uploadProfil = async (req: Request, res: Response) => {
+export const uploadProfil = async (req: Request, res: Response) => {
     const allowedMimeTypes = ['image/png', 'image/jpg', 'image/jpeg']
 
     if (entityIdFormatIsInValid(req, res)) {
@@ -20,7 +20,7 @@ export const    uploadProfil = async (req: Request, res: Response) => {
 
         // Fichier invalid
         if (!allowedMimeTypes.includes(req.file.mimetype)) {
-            throw new Error('Invalid file type')
+            throw new Error('Format de fichier non valide')
         }
 
         // Max size
@@ -31,7 +31,7 @@ export const    uploadProfil = async (req: Request, res: Response) => {
         // User connected
         let userConnected = await UserModel.findById(req.body.userId)
         if (!userConnected) {
-            throw new Error('User does not exist')
+            throw new Error("L'utilisateur n'existe pas")
         }
 
         // Image downloaded
@@ -41,18 +41,12 @@ export const    uploadProfil = async (req: Request, res: Response) => {
 
         // Stock l'image dans le cloud
         let imageUrlInImageKit: string | undefined;
-        IMAGE_KIT.upload({
+        await IMAGE_KIT.upload({
             file: req.file.buffer,
             fileName: imgName,
             folder: API_IMAGE_KIT_FOLDER_PROFIL,
             useUniqueFileName: false,
             overwriteFile: true
-        }, (error, result)=> {
-            if (error) {
-                throw error
-            }
-            imageUrlInImageKit = result?.url
-            console.log(result)
         });
 
         console.log('DEBUG req.file:', req.file)

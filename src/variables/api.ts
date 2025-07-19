@@ -14,6 +14,11 @@ export const API_IMAGE_KIT_FOLDER = process.env.API_IMAGE_KIT_FOLDER
 export const API_IMAGE_KIT_FOLDER_PROFIL = `${API_IMAGE_KIT_FOLDER}/profil`
 // Dossier de stockage des img de post
 export const API_IMAGE_KIT_FOLDER_POST = `${API_IMAGE_KIT_FOLDER}/post`
+/* Dossier contenant l'img de profil par défaut */
+export const API_IMAGE_KIT_FOLDER_DEFAULT = `${API_IMAGE_KIT_FOLDER}/default`
+
+// ImageKit Errors
+export const FOLDER_EXISTS = 'FOLDER_EXISTS'
 
 // Objet permettant de requêter l'api ImageKit
 export const IMAGE_KIT = new ImageKit({

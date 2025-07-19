@@ -1,10 +1,11 @@
 import {SPECIAL_CHARS} from "../variables/char.variable";
 
-export const signUpErrors = (err: any) => {
+    export const signUpErrors = (err: any) => {
     const errors = {
         pseudo: '',
         email: '',
         password: {},
+        other: ''
     }
 
     console.error('err', err)
@@ -13,10 +14,10 @@ export const signUpErrors = (err: any) => {
     if (err.message.toLowerCase().includes('pseudo')) {
         errors.pseudo = 'Pseudo incorrect (3 caractères minimum)'
     }
-    if (err.message.toLowerCase().includes('email')) {
+    else if (err.message.toLowerCase().includes('email')) {
         errors.email = 'Email incorrect'
     }
-    if (err.message.toLowerCase().includes('password')) {
+    else if (err.message.toLowerCase().includes('password')) {
         /*
         errors.password = `Le password incorrect :
         - 12 caractères minimum
@@ -31,6 +32,9 @@ export const signUpErrors = (err: any) => {
             minLetter: 'Au moins une lettre minuscule',
             specialChar: `Au moins un caractère spécial (${SPECIAL_CHARS})`
         };
+    }
+    else {
+        errors.other = err.message
     }
 
     // Doublons
@@ -48,6 +52,7 @@ export const signInErrors = (err: any) => {
     const errors = {
         email: '',
         password: '',
+        other: ''
     }
 
     console.error('err', err)
@@ -55,8 +60,11 @@ export const signInErrors = (err: any) => {
     if (err.message.toLowerCase().includes('email')) {
         errors.email = 'Email inconnu'
     }
-    if (err.message.toLowerCase().includes('password')) {
-        errors.email = 'Password incorrect'
+    else if (err.message.toLowerCase().includes('password')) {
+        errors.email = 'Mot de passe incorrect'
+    }
+    else {
+        errors.other = err.message
     }
 
     return errors
@@ -68,22 +76,26 @@ export const uploadErrors = (err: any) => {
         invalidFile: '',
         maxSizeFile: '',
         user: '',
+        other: ''
     }
 
-    if (err.message.toLowerCase().includes('aucun fichier fourni')) {
+    if (err.message.toLowerCase().includes('Aucun fichier fourni')) {
         errors.notFile = err.message
     }
-    if (err.message.toLowerCase().includes('invalid file type')) {
+    else if (err.message.toLowerCase().includes('Format de fichier non valide')) {
         errors.invalidFile = err.message
     }
-    if (err.message.toLowerCase().includes('size')) {
+    else if (err.message.toLowerCase().includes('size')) {
         errors.maxSizeFile = err.message
     }
-    if (err.message.toLowerCase().includes('user does not exist')) {
+    else if (err.message.toLowerCase().includes("L'utilisateur du poster n'existe pas")) {
         errors.user = err.message
     }
-    if (err.message.toLowerCase().includes('taille max acceptée')) {
+    else if (err.message.toLowerCase().includes('Taille max acceptée')) {
         errors.user = err.message
+    }
+    else {
+        errors.other = err.message
     }
 
     return errors

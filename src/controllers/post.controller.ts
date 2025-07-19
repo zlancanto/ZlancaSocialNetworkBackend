@@ -3,12 +3,10 @@ import {PostModel} from "../models/post.model";
 import {entityIdFormatIsInValid} from "../utils/entity.exist.utils";
 import {UserModel} from "../models/user.model";
 import {MongooseError} from "mongoose";
-import {throws} from "node:assert";
 import {IComment} from "../utils/interface.utils";
 import {FILE_MAX_SIZE} from "../variables/file.variable";
-import path from "node:path";
-import {mkdir, writeFile} from "node:fs/promises";
 import {uploadErrors} from "../utils/errors.utils";
+import {API_IMAGE_KIT_FOLDER_POST, API_IMAGE_KIT_URL_ENDPOINT, IMAGE_KIT} from "../variables/api";
 
 /* Get All */
 export const getAllPost = async (_: Request, res: Response) => {
@@ -32,12 +30,12 @@ export const createPost = async (req: Request, res: Response) => {
     const allowedMimeTypes = ['image/png', 'image/jpg', 'image/jpeg']
 
     try {
-        let imgRelativePath: string|undefined
+        let imgAbsolutePath: string | undefined;
         if (req.file && req.file.buffer) {
 
             // Fichier invalid
             if (!allowedMimeTypes.includes(req.file.mimetype)) {
-                throw new Error('Invalid file type')
+                throw new Error('Format de fichier non valide')
             }
 
             // Max size
@@ -48,29 +46,34 @@ export const createPost = async (req: Request, res: Response) => {
             // Poster user
             let posterUser = await UserModel.findById(posterId).select('-password')
             if (!posterUser) {
-                throw new Error('Poster user does not exist')
+                throw new Error("L'utilisateur du poster n'existe pas")
             }
 
             /* Image uploaded */
 
+            // Creation du dossier spécifique aux post du user
+            await IMAGE_KIT.createFolder({
+                folderName: posterUser.pseudo,
+                parentFolderPath: `${API_IMAGE_KIT_FOLDER_POST}/`
+            });
+
             // Nom du fichier
-            const imgName: string = `${posterUser.pseudo}_${Date.now()}.jpg`
-            // Chemin du dossier spécifique à l'utilisateur
-            const userPostDir: string = path.join('uploads/post', posterUser.pseudo)
-            // On crée le dossier (et ses parents) s'il n'existe pas
-            await mkdir(userPostDir, { recursive: true })
-            // Chemin complet de l'image dans ce dossier
-            const imgPath = path.join(__dirname, `../client/public/${userPostDir}`, imgName)
-            // Ecriture de l'img
-            await writeFile(imgPath, req.file.buffer)
-            // Chemin à stoker dans la bd
-            imgRelativePath = path.join(`./${userPostDir}`, imgName)
+            const imgName: string = `${posterUser.pseudo}_${Date.now()}.jpg`;
+            imgAbsolutePath = `${API_IMAGE_KIT_URL_ENDPOINT}/${API_IMAGE_KIT_FOLDER_POST}/${posterUser.pseudo}/${imgName}`;
+
+            await IMAGE_KIT.upload({
+                file: req.file.buffer,
+                fileName: imgName,
+                folder: `${API_IMAGE_KIT_FOLDER_POST}/${posterUser.pseudo}/`,
+                useUniqueFileName: false,
+                overwriteFile: true,
+            });
         }
 
         const newPost = await PostModel.create({
             posterId,
             message,
-            picture: imgRelativePath,
+            picture: imgAbsolutePath,
             video,
             likers: [],
             comments: [],
@@ -78,9 +81,9 @@ export const createPost = async (req: Request, res: Response) => {
         res.status(201).json(newPost)
     } catch (error: any) {
         const errors = uploadErrors(error)
-        console.error('Erreur : ', error)
-        console.error('Errors : ', errors)
-        res.status(500).json({ errors })
+        console.error('UploadErreur : ', error)
+        console.error('UploadErrors : ', errors)
+        res.status(500).json({errors})
     }
 }
 
@@ -140,7 +143,7 @@ export const likePost = async (req: Request, res: Response) => {
         const postLiked = await PostModel.findByIdAndUpdate(
             req.params.id,
             {
-                $addToSet: { likers: req.body.likerId }
+                $addToSet: {likers: req.body.likerId}
             },
             {new: true}
         )
@@ -152,7 +155,7 @@ export const likePost = async (req: Request, res: Response) => {
         const userUpdated = await UserModel.findByIdAndUpdate(
             req.body.likerId,
             {
-                $addToSet: { likes: req.params.id }
+                $addToSet: {likes: req.params.id}
             },
             {new: true}
         )
@@ -178,7 +181,7 @@ export const unlikePost = async (req: Request, res: Response) => {
         const postUnliked = await PostModel.findByIdAndUpdate(
             req.params.id,
             {
-                $pull: { likers: req.body.likerId }
+                $pull: {likers: req.body.unlikerId}
             },
             {new: true}
         )
@@ -188,15 +191,15 @@ export const unlikePost = async (req: Request, res: Response) => {
         }
 
         const userUpdated = await UserModel.findByIdAndUpdate(
-            req.body.likerId,
+            req.body.unlikerId,
             {
-                $pull: { likes: req.params.id }
+                $pull: {likes: req.params.id}
             },
             {new: true}
         )
 
         if (!userUpdated) {
-            res.status(404).json({message: 'User introuvable'})
+            res.status(404).json({message: 'Utilisateur introuvable'})
         } else {
             res.status(200).json(userUpdated)
         }
@@ -212,17 +215,22 @@ export const commentPost = async (req: Request, res: Response) => {
         return
     }
 
-    const { commenterId, text } = req.body
+    const {commenterId, text} = req.body
 
     try {
         const postCommented = await PostModel.findByIdAndUpdate(
             req.params.id,
             {
-                $addToSet: {
+                $push: {
                     comments: {
-                        commenterId,
-                        text,
-                        timestamp: Date.now(),
+                        $each: [
+                            {
+                                commenterId,
+                                text,
+                                timestamp: Date.now(),
+                            }
+                        ],
+                        $position: 0
                     }
                 }
             },
@@ -234,8 +242,7 @@ export const commentPost = async (req: Request, res: Response) => {
         } else {
             res.status(200).json(postCommented)
         }
-    }
-    catch (error) {
+    } catch (error) {
         console.error('error : ', error)
         res.status(500).json({error})
     }
@@ -247,7 +254,7 @@ export const editCommentPost = async (req: Request, res: Response) => {
         return
     }
 
-    const { commentId, text } = req.body
+    const {commentId, text} = req.body
 
     try {
         /* Récupération du post */
@@ -261,7 +268,7 @@ export const editCommentPost = async (req: Request, res: Response) => {
             .comments
             .find((comment: IComment) => comment._id.equals(commentId))
         if (!commentToUpdate) {
-            throw new MongooseError('Comment introuvable')
+            throw new MongooseError('Commentaire introuvable')
         }
 
         /* Modif et sauvegarde du post */
@@ -269,8 +276,7 @@ export const editCommentPost = async (req: Request, res: Response) => {
         await postCommented.save()
 
         res.status(200).json(postCommented)
-    }
-    catch (error) {
+    } catch (error) {
         console.error('error : ', error)
         res.status(500).json({error})
     }
@@ -287,7 +293,7 @@ export const deleteCommentPost = async (req: Request, res: Response) => {
             req.params.id,
             {
                 $pull: {
-                    comments: {_id : req.body.commentId}
+                    comments: {_id: req.body.commentId}
                 }
             },
             {new: true}
@@ -298,8 +304,7 @@ export const deleteCommentPost = async (req: Request, res: Response) => {
         }
 
         res.status(200).json(postCommented)
-    }
-    catch (err) {
+    } catch (err) {
         console.error('error : ', err)
         res.status(500).json({err})
     }

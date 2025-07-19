@@ -2,7 +2,7 @@ import {Model, model, Schema} from "mongoose";
 import {IComment, ITimestamps} from "../utils/interface.utils";
 
 export interface IPost extends Document, ITimestamps {
-    postId: string
+    posterId: string
     message: string
     picture: string
     video: string
