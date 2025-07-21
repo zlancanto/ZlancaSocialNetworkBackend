@@ -30,7 +30,7 @@ export const signIn = async (req: Request, res: Response) => {
             httpOnly: true,
             maxAge: MAX_AGE,
             secure: true,
-            sameSite: 'strict'
+            sameSite: 'none'
         })
         res.status(200).json({userId: user._id})
     }
