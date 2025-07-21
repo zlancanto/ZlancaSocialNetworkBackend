@@ -40,5 +40,5 @@ app.use('/api/user', userRoutes)
 app.use('/api/post', postRoutes)
 
 /* Port écouté par le serveur */
-const port = process.env.PORT || 9000
+const port = process.env.PORT
 app.listen(port, () => console.log(`Listening on port ${port}`))
