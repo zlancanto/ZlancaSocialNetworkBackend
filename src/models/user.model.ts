@@ -60,9 +60,7 @@ const userSchema = new mongoose.Schema(
         },
         picture: {
             type: String,
-            default: function (this: IUser) {
-                return `${API_IMAGE_KIT_FOLDER_DEFAULT}/random-user.png`;
-            }
+            default: '/uploads/profil/random-user.png'
         },
         bio: {
             type: String,

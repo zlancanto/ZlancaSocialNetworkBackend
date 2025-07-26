@@ -42,7 +42,7 @@ export const signIn = async (req: Request, res: Response) => {
 }
 
 /* Logout */
-export const logout = async (_: Request, res: Response) => {
+export const logout = (_: Request, res: Response) => {
     res.cookie('jwt', '', { httpOnly: true, maxAge: 0 })
     res.status(200).json({message: 'Logged out'})
 }
